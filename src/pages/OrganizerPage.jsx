@@ -1,138 +1,152 @@
 import { useState, useEffect } from "react";
 import { useApi } from "../hooks/useApi";
-import { useNavigate } from "react-router-dom";
+import OrganizerSidebar from "../components/organizer/OrganizerSidebar";
+import OrganizerDashboard from "../components/organizer/OrganizerDashboard";
+import MyEventsList from "../components/organizer/MyEventsList";
+import CreateEventForm from "../components/organizer/CreateEventForm";
+import TicketManager from "../components/organizer/TicketManager";
+import OrganizerProfile from "../components/organizer/OrganizerProfile";
 
 export default function OrganizerPage() {
   const api = useApi();
-  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [stats, setStats] = useState(null);
+  const [myEvents, setMyEvents] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    categoryId: "",
-    location: "",
-    startTime: "",
-    endTime: "",
-    saleStartDate: "",
-    saleEndDate: "",
-    description: "",
-    files: null
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventTicketTypes, setEventTicketTypes] = useState([]);
+
+  const [eventFormData, setEventFormData] = useState({
+    name: "", categoryId: "", location: "", startTime: "", endTime: "",
+    saleStartDate: "", saleEndDate: "", description: "", files: null
+  });
+
+  const [ticketFormData, setTicketFormData] = useState({
+    name: "", price: "", totalQuantity: "", description: ""
   });
 
   useEffect(() => {
+    fetchDashData();
     api.get("/categories").then(res => setCategories(res.result || []));
+    api.get("/users/my-info").then(res => setProfile(res.result));
   }, [api]);
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    setFormData(prev => ({ ...prev, [name]: files ? files : value }));
+  const fetchDashData = async () => {
+    try {
+      const statsRes = await api.get("/events/organizer/stats");
+      setStats(statsRes.result);
+      const eventsRes = await api.get("/events/organizer/my-events");
+      setMyEvents(eventsRes.result?.content || []);
+    } catch (err) {}
   };
 
-  const handleSubmit = async (e) => {
+  const handleEventChange = (e) => {
+    const { name, value, files } = e.target;
+    setEventFormData(prev => ({ ...prev, [name]: files ? files : value }));
+  };
+
+  const handleEventSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const data = new FormData();
-      Object.keys(formData).forEach(key => {
-        if (key === 'files' && formData.files) {
-          for (let i = 0; i < formData.files.length; i++) {
-            data.append("files", formData.files[i]);
-          }
-        } else if (formData[key]) {
-          data.append(key, formData[key]);
+      Object.keys(eventFormData).forEach(key => {
+        if (key === 'files' && eventFormData.files) {
+          for (let i = 0; i < eventFormData.files.length; i++) data.append("files", eventFormData.files[i]);
+        } else if (eventFormData[key]) {
+          data.append(key, eventFormData[key]);
         }
       });
-
       await api.post("/events", data);
-      alert("Đã gửi yêu cầu tạo sự kiện! Vui lòng chờ Admin duyệt.");
-      setFormData({
-        name: "", categoryId: "", location: "",
-        startTime: "", endTime: "", saleStartDate: "", saleEndDate: "",
-        description: "", files: null
+      alert("Đăng ký sự kiện thành công! Đang chờ Admin duyệt.");
+      setEventFormData({
+        name: "", categoryId: "", location: "", startTime: "", endTime: "",
+        saleStartDate: "", saleEndDate: "", description: "", files: null
       });
-    } catch (err) {
-      alert("Lỗi khi tạo sự kiện. Vui lòng kiểm tra lại dữ liệu.");
-    } finally {
-      setLoading(false);
+      setActiveTab("events");
+      fetchDashData();
+    } catch (err) { 
+      const msg = err.response?.data?.message || "Lỗi khi tạo sự kiện. Vui lòng kiểm tra lại dữ liệu.";
+      alert(msg); 
+    } finally { 
+      setLoading(false); 
     }
   };
 
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const { username, ...updateData } = profile;
+      await api.put(`/users/${username}`, updateData);
+      alert("Cập nhật thành công!");
+    } catch (err) { alert("Lỗi khi cập nhật hồ sơ."); }
+  };
+
+  const openTicketManager = async (event) => {
+    setSelectedEvent(event);
+    const res = await api.get(`/ticket-types/event/${event.id}`);
+    setEventTicketTypes(res.result || []);
+    setActiveTab("tickets");
+  };
+
+  const handleAddTicket = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post("/ticket-types", { ...ticketFormData, eventId: selectedEvent.id });
+      alert("Đã thêm hạng vé thành công!");
+      setTicketFormData({ name: "", price: "", totalQuantity: "", description: "" });
+      openTicketManager(selectedEvent);
+    } catch (err) { alert("Thiết lập vé thất bại."); }
+  };
+
   return (
-    <div className="container py-5">
-      <div className="row justify-content-center">
-        <div className="col-lg-8">
-          <div className="card shadow-lg border-0 p-4" style={{ borderRadius: '20px' }}>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-              <h3 className="fw-bold mb-0">🏗️ Tạo sự kiện mới</h3>
-              <button className="btn btn-light" onClick={() => navigate("/login")}>Thoát ↩</button>
-            </div>
-            
-            <form onSubmit={handleSubmit}>
-              <div className="row g-4">
-                <div className="col-12">
-                  <label className="form-label fw-bold small text-muted">Tên sự kiện</label>
-                  <input type="text" name="name" className="form-control form-control-lg bg-light border-0" required value={formData.name} onChange={handleChange} placeholder="Tên sự kiện nổi bật..." />
-                </div>
+    <div className="d-flex" style={{ minHeight: "100vh", backgroundColor: "#f8f9fa" }}>
+      {/* Sidebar Navigation */}
+      <OrganizerSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-                <div className="col-md-6">
-                  <label className="form-label fw-bold small text-muted">Danh mục</label>
-                  <select name="categoryId" className="form-select bg-light border-0" required value={formData.categoryId} onChange={handleChange}>
-                    <option value="">Chọn loại sự kiện</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                </div>
+      {/* Main Panel */}
+      <div className="flex-grow-1 overflow-auto" style={{ height: "100vh" }}>
+        <div className="p-3 p-md-5 mx-auto" style={{ maxWidth: "1200px" }}>
+          
+          {activeTab === "dashboard" && (
+            <OrganizerDashboard stats={stats} profile={profile} />
+          )}
 
-                <div className="col-md-6">
-                  <label className="form-label fw-bold small text-muted">Địa điểm</label>
-                  <input type="text" name="location" className="form-control bg-light border-0" required value={formData.location} onChange={handleChange} placeholder="Nơi diễn ra..." />
-                </div>
+          {activeTab === "events" && (
+            <MyEventsList myEvents={myEvents} openTicketManager={openTicketManager} />
+          )}
 
-                <div className="col-md-6">
-                  <div className="card bg-primary-subtle border-0 p-3 h-100" style={{ borderRadius: '15px' }}>
-                    <label className="form-label fw-bold text-primary small">🛒 Mở bán vé từ:</label>
-                    <input type="datetime-local" name="saleStartDate" className="form-control border-0 shadow-sm" required value={formData.saleStartDate} onChange={handleChange} />
-                  </div>
-                </div>
+          {activeTab === "create" && (
+            <CreateEventForm 
+              formData={eventFormData} 
+              handleChange={handleEventChange} 
+              handleSubmit={handleEventSubmit} 
+              categories={categories} 
+              loading={loading} 
+            />
+          )}
 
-                <div className="col-md-6">
-                  <div className="card bg-danger-subtle border-0 p-3 h-100" style={{ borderRadius: '15px' }}>
-                    <label className="form-label fw-bold text-danger small">🛑 Kết thúc bán vé vào:</label>
-                    <input type="datetime-local" name="saleEndDate" className="form-control border-0 shadow-sm" required value={formData.saleEndDate} onChange={handleChange} />
-                  </div>
-                </div>
+          {activeTab === "tickets" && (
+            <TicketManager 
+              event={selectedEvent}
+              ticketFormData={ticketFormData}
+              setTicketFormData={setTicketFormData}
+              handleAddTicket={handleAddTicket}
+              eventTicketTypes={eventTicketTypes}
+              setActiveTab={setActiveTab}
+            />
+          )}
 
-                <div className="col-md-6">
-                  <div className="card bg-light border-0 p-3 h-100" style={{ borderRadius: '15px' }}>
-                    <label className="form-label fw-bold text-secondary small">🎉 Thời gian diễn ra:</label>
-                    <input type="datetime-local" name="startTime" className="form-control border-0 shadow-sm" required value={formData.startTime} onChange={handleChange} />
-                  </div>
-                </div>
+          {activeTab === "profile" && (
+            <OrganizerProfile 
+              profile={profile} 
+              setProfile={setProfile} 
+              handleProfileUpdate={handleProfileUpdate} 
+            />
+          )}
 
-                <div className="col-md-6">
-                  <div className="card bg-light border-0 p-3 h-100" style={{ borderRadius: '15px' }}>
-                    <label className="form-label fw-bold text-secondary small">🏁 Thời gian kết thúc:</label>
-                    <input type="datetime-local" name="endTime" className="form-control border-0 shadow-sm" required value={formData.endTime} onChange={handleChange} />
-                  </div>
-                </div>
-
-                <div className="col-12">
-                  <label className="form-label fw-bold small text-muted">Hình ảnh minh họa</label>
-                  <input type="file" name="files" multiple className="form-control border-0 bg-light" onChange={handleChange} accept="image/*" />
-                </div>
-
-                <div className="col-12">
-                  <label className="form-label fw-bold small text-muted">Mô tả chi tiết</label>
-                  <textarea name="description" className="form-control border-0 bg-light" rows="4" value={formData.description} onChange={handleChange} placeholder="Nội dung sự kiện..."></textarea>
-                </div>
-
-                <div className="col-12 pt-3">
-                  <button type="submit" className="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-lg" disabled={loading}>
-                    {loading ? "Đang gửi yêu cầu..." : "GỬI YÊU CẦU DUYỆT SỰ KIỆN 🚀"}
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
         </div>
       </div>
     </div>

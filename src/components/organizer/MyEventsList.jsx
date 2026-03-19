@@ -1,0 +1,64 @@
+import React from "react";
+import { formatDate, StatusBadge } from "../../utils/helpers";
+
+export default function MyEventsList({ myEvents, openTicketManager }) {
+  if (myEvents.length === 0) return <div className="text-center py-5 text-muted">Chưa có sự kiện nào được đăng.</div>;
+
+  return (
+    <div className="row g-4 animate__animated animate__fadeIn">
+      {myEvents.map(event => (
+        <div key={event.id} className="col-md-6 col-lg-4">
+          <div className="card h-100 border-0 shadow-sm overflow-hidden" style={{ borderRadius: '20px' }}>
+            {/* Event Name & Info */}
+            <div className="p-4 d-flex flex-column h-100">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <StatusBadge status={event.status} />
+              </div>
+              <h5 className="fw-bold mb-2 flex-grow-1">{event.name}</h5>
+              
+              <div className="small text-secondary mb-3">
+                <div className="d-flex align-items-center gap-2 mb-1">
+                  <span>📅</span> {formatDate(event.startTime)}
+                </div>
+                <div className="d-flex align-items-center gap-2">
+                  <span>📍</span> {event.location}
+                </div>
+              </div>
+
+              {/* Action Button */}
+              {event.status === 'UPCOMING' && (
+                <button className="btn btn-primary w-100 rounded-pill fw-bold mt-2 shadow-sm" onClick={() => openTicketManager(event)}>
+                  Quản lý vé & Số lượng
+                </button>
+              )}
+
+              {(event.status === 'OPENING' || event.status === 'CLOSED') && (
+                <button className="btn btn-outline-primary w-100 rounded-pill fw-bold mt-2" onClick={() => openTicketManager(event)}>
+                  Xem số lượng vé
+                </button>
+              )}
+
+              {event.status === 'COMPLETED' && (
+                <button className="btn btn-outline-success w-100 rounded-pill fw-bold mt-2" onClick={() => openTicketManager(event)}>
+                  Xem vé & Doanh thu
+                </button>
+              )}
+
+              {event.status === 'PENDING' && (
+                <div className="alert alert-warning py-2 mb-0 border-0 rounded-pill text-center small fw-bold">
+                  Đang chờ kiểm duyệt...
+                </div>
+              )}
+
+              {event.status === 'CANCELLED' && (
+                 <div className="alert alert-secondary py-2 mb-0 border-0 rounded-pill text-center small fw-bold opacity-50">
+                    Đã hủy bỏ
+                 </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
