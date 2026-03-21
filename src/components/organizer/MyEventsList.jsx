@@ -1,5 +1,6 @@
 import React from "react";
 import { formatDate, StatusBadge } from "../../utils/helpers";
+import { getImageUrl } from "../../hooks/useApi";
 
 export default function MyEventsList({ myEvents, openTicketManager }) {
   if (myEvents.length === 0) return <div className="text-center py-5 text-muted">Chưa có sự kiện nào được đăng.</div>;
@@ -9,11 +10,27 @@ export default function MyEventsList({ myEvents, openTicketManager }) {
       {myEvents.map(event => (
         <div key={event.id} className="col-md-6 col-lg-4">
           <div className="card h-100 border-0 shadow-sm overflow-hidden" style={{ borderRadius: '20px' }}>
-            {/* Event Name & Info */}
-            <div className="p-4 d-flex flex-column h-100">
-              <div className="d-flex justify-content-between align-items-center mb-3">
+            {/* Event Image */}
+            <div className="position-relative" style={{ height: '180px' }}>
+              {event.imageUrls?.[0] ? (
+                <img 
+                  src={getImageUrl(event.imageUrls[0])} 
+                  alt={event.name} 
+                  className="w-100 h-100" 
+                  style={{ objectFit: 'cover' }} 
+                />
+              ) : (
+                <div className="w-100 h-100 bg-light d-flex align-items-center justify-content-center text-muted small px-3 text-center">
+                  (Chưa có ảnh mô tả)
+                </div>
+              )}
+              <div className="position-absolute top-0 end-0 p-3">
                 <StatusBadge status={event.status} />
               </div>
+            </div>
+
+            {/* Event Name & Info */}
+            <div className="p-4 d-flex flex-column h-100">
               <h5 className="fw-bold mb-2 flex-grow-1">{event.name}</h5>
               
               <div className="small text-secondary mb-3">

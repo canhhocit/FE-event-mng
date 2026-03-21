@@ -48,27 +48,27 @@ export default function DashboardPage({ api }) {
     };
 
     fetchDashboardData();
-  }, [api]);
+  }, []);
 
   return (
     <div className="animate-fade-in">
       <div className="mb-4">
-        <h4 className="fw-bold mb-1">🏠 Bảng điều khiển</h4>
-        <p className="text-secondary small">Chào mừng trở lại!</p>
+        <h4 className="fw-bold mb-1">Bảng điều khiển</h4>
+        <p className="text-secondary small">welcome</p>
       </div>
 
       <StatCards stats={stats} loading={loading} />
 
       <div className="card border-0 shadow-sm mt-4 overflow-hidden" style={{ borderRadius: '16px' }}>
         <div className="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
-          <h6 className="fw-bold mb-0">📋 Danh sách sự kiện mới nhất</h6>
-          <button className="btn btn-sm btn-light text-primary px-3 rounded-pill fw-bold" onClick={() => window.location.reload()}>TẤT CẢ</button>
+          <h6 className="fw-bold mb-0">Danh sách sự kiện</h6>
+          <button className="btn btn-sm btn-light text-primary px-3 rounded-pill fw-bold" onClick={() => window.location.reload()}>Làm mới</button>
         </div>
         <div className="table-responsive">
           <table className="table table-hover align-middle mb-0">
             <thead className="bg-light text-secondary small text-uppercase">
               <tr>
-                <th className="px-4 py-3 border-0">Sự kiện</th>
+                <th className="px-4 py-2 border-0">Sự kiện</th>
                 <th className="border-0">Tổ chức</th>
                 <th className="border-0">Tỷ lệ bán</th>
                 <th className="border-0">Ngày tạo</th>

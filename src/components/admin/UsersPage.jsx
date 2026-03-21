@@ -46,7 +46,7 @@ export default function UsersPage({ api }) {
       setTotalPages(res.result?.totalPages ?? 1);
       setLoading(false);
     });
-  }, [page, refetch, api]);
+  }, [page, refetch]);
 
   const handleDisable = async (username) => {
     if (!window.confirm(`Xác nhận khóa tài khoản "${username}"?`)) return;
@@ -69,8 +69,8 @@ export default function UsersPage({ api }) {
   return (
     <div className="animate-fade-in">
       <div className="mb-4">
-        <h4 className="fw-bold mb-1">👥 Quản lý người dùng</h4>
-        <p className="text-secondary small">Tra cứu, phân quyền và quản lý trạng thái tài khoản người dùng.</p>
+        <h4 className="fw-bold mb-1">Quản lý người dùng</h4>
+        <p className="text-secondary small">Quản lý trạng thái tài khoản người dùng.Đang pt</p>
       </div>
 
       {/* Stats Row */}

@@ -58,7 +58,7 @@ function EventDetailModal({ event, onClose }) {
                 </div>
               </div>
 
-              <h6 className="fw-bold mb-3 small text-uppercase" style={{ letterSpacing: '1px' }}>🎫 Quản lý vé</h6>
+              <h6 className="fw-bold mb-3 small text-uppercase" style={{ letterSpacing: '1px' }}>Quản lý vé</h6>
               <div className="p-3 bg-light rounded-3">
                 {event.ticketTypes?.length > 0 ? event.ticketTypes.map(tt => {
                   const sold = tt.totalQuantity - tt.remainingQuantity;
@@ -276,7 +276,7 @@ export default function EventsPage({ api }) {
 
   useEffect(() => {
     api.get("/categories").then(res => setCategories(res.result || []));
-  }, [api]);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -289,7 +289,7 @@ export default function EventsPage({ api }) {
       setTotalPages(res.result?.totalPages ?? 1);
       setLoading(false);
     });
-  }, [page, search, status, refetch, api]);
+  }, [page, search, status, refetch]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -339,8 +339,8 @@ export default function EventsPage({ api }) {
 
       <div className="mb-4 d-flex justify-content-between align-items-center">
         <div>
-          <h4 className="fw-bold mb-1 font-inter">📅 Quản lý sự kiện</h4>
-          <p className="text-secondary small">Theo dõi, duyệt và quản lý các sự kiện trên hệ thống.</p>
+          <h4 className="fw-bold mb-1 font-inter">Quản lý sự kiện</h4>
+          <p className="text-secondary small">Theo dõi, duyệt và quản lý các sự kiện.</p>
         </div>
         {/* <button className="btn btn-primary px-4 rounded-pill fw-bold shadow" onClick={() => setShowCreate(true)}>
            + Tạo sự kiện
@@ -396,7 +396,7 @@ export default function EventsPage({ api }) {
             </div>
           ) : events.length === 0 ? (
             <div className="text-center py-5">
-               <span style={{ fontSize: '48px' }}>📂</span>
+               <span style={{ fontSize: '48px' }}>....</span>
                <p className="mt-3 text-muted">Không tìm thấy sự kiện nào khớp với bộ lọc.</p>
             </div>
           ) : (

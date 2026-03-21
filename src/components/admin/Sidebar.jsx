@@ -69,10 +69,10 @@ export default function Sidebar({ active, onSelect, onProfileClick }) {
              style={{ cursor: 'pointer' }}
              onClick={onProfileClick}
            >
-              <div className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: 34, height: 34, fontSize: 13 }}>A</div>
+              <div className="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center fw-bold shadow-sm" style={{ width: 34, height: 34, fontSize: 13 }}>A</div>
               <div className="overflow-hidden">
                 <div className="small fw-bold text-dark text-truncate">{user?.sub ?? "Administrator"}</div>
-                <div className="text-secondary" style={{ fontSize: 10 }}>View Profile</div>
+                <div className="text-secondary" style={{ fontSize: 10 }}>Admin Profile</div>
               </div>
            </div>
         )}

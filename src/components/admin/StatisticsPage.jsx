@@ -21,8 +21,6 @@ export default function StatisticsPage({ api }) {
         const monthKeys = []; // Định dạng YYYY-MM
         const monthlyRevenue = [];
         
-        // CHIẾN THUẬT MỚI: Hiển thị 3 tháng trước, tháng hiện tại, và 2 tháng tới (Tổng 6 tháng)
-        // Điều này giúp thấy được doanh thu của các sự kiện sắp diễn ra trong tương lai gần
         for (let i = -3; i <= 2; i++) {
           const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
           const m = String(d.getMonth() + 1).padStart(2, '0');
@@ -32,7 +30,7 @@ export default function StatisticsPage({ api }) {
           monthlyRevenue.push(0);
         }
 
-        // 1. Fetch dữ liệu
+        // Fetch data
         const [eventsRes, usersRes, statusRes] = await Promise.all([
           api.get("/events/admin/all?size=1000"),
           api.get("/users?page=1&size=1000"),
@@ -43,7 +41,7 @@ export default function StatisticsPage({ api }) {
         const users = usersRes.result?.content || [];
         const statusDetails = statusRes.result?.eventStatusStatsDetail || [];
 
-        // 2. Xử lý Thống kê
+        // xuly
         let totalRevenue = 0;
         let totalSold = 0;
         
@@ -62,8 +60,7 @@ export default function StatisticsPage({ api }) {
           totalRevenue += eventRev;
           totalSold += eventSold;
 
-          // Gán doanh thu vào đúng tháng trên biểu đồ
-          // Ưu tiên startTime vì doanh thu sự kiện thường được tính theo kỳ diễn ra
+          
           const dateStr = ev.startTime || ev.createdAt;
           if (dateStr) {
             const d = new Date(dateStr);
@@ -71,7 +68,7 @@ export default function StatisticsPage({ api }) {
               const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
               const mIndex = monthKeys.indexOf(key);
               if (mIndex !== -1) {
-                monthlyRevenue[mIndex] += (eventRev / 1000000); // Đổi sang Triệu VNĐ
+                monthlyRevenue[mIndex] += (eventRev / 1000000); //convert to million VND
               }
             }
           }
@@ -79,7 +76,7 @@ export default function StatisticsPage({ api }) {
           return { ...ev, ticketsSold: eventSold, totalRevenue: eventRev, totalTickets: totalQty };
         });
 
-        // 3. Cập nhật StatCards
+        // update StatCards
         setStatsData([
           { title: "TỔNG DOANH THU", value: totalRevenue.toLocaleString() + "đ", icon: "💰", color: "#00b894" },
           { title: "VÉ ĐÃ BÁN", value: totalSold.toLocaleString(), icon: "🎫", color: "#0984e3" },
@@ -89,7 +86,7 @@ export default function StatisticsPage({ api }) {
 
         setTopEvents([...processedEvents].sort((a, b) => b.ticketsSold - a.ticketsSold).slice(0, 5));
 
-        // 4. Biểu đồ Doanh thu (Đường kẻ)
+        // bieu do
         if (salesChartRef.current) {
           salesChart = new Chart(salesChartRef.current, {
             type: 'line',
@@ -139,7 +136,7 @@ export default function StatisticsPage({ api }) {
           });
         }
 
-        // 5. Biểu đồ Trạng thái (Tròn)
+        // bd tron
         if (categoryChartRef.current) {
           categoryChart = new Chart(categoryChartRef.current, {
             type: 'doughnut',
@@ -175,12 +172,12 @@ export default function StatisticsPage({ api }) {
       if (salesChart) salesChart.destroy();
       if (categoryChart) categoryChart.destroy();
     };
-  }, [api]);
+  }, []);
 
   return (
     <div className="animate-fade-in px-2">
       <div className="mb-4">
-        <h4 className="fw-bold mb-1">📈 Phân tích doanh thu</h4>
+        <h4 className="fw-bold mb-1">Phân tích doanh thu</h4>
         <p className="text-secondary small">Theo dõi xu hướng bán vé qua các tháng (Bao gồm dự báo tương lai).</p>
       </div>
 
@@ -194,9 +191,9 @@ export default function StatisticsPage({ api }) {
                 <h6 className="fw-bold mb-0">Biểu đồ tăng trưởng</h6>
                 <small className="text-muted small">Dữ liệu tính theo Triệu VNĐ</small>
               </div>
-              <div className="d-flex gap-2">
+              {/* <div className="d-flex gap-2">
                  <span className="badge bg-primary px-3 py-2 rounded-pill">DỮ LIỆU THỰC</span>
-              </div>
+              </div> */}
             </div>
             <div className="flex-grow-1 position-relative" style={{ height: '280px' }}>
               <canvas ref={salesChartRef}></canvas>
@@ -215,7 +212,7 @@ export default function StatisticsPage({ api }) {
 
       <div className="card mt-4 shadow-sm border-0 overflow-hidden" style={{ borderRadius: '20px' }}>
         <div className="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
-          <h6 className="fw-bold mb-0">🏆 Xếp hạng sự kiện theo doanh thu</h6>
+          <h6 className="fw-bold mb-0">Xếp hạng</h6>
           <button className="btn btn-sm btn-outline-primary border-0 fw-bold" onClick={() => window.location.reload()}>
             LÀM MỚI ↻
           </button>

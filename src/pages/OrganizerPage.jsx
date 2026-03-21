@@ -31,7 +31,7 @@ export default function OrganizerPage() {
     fetchDashData();
     api.get("/categories").then(res => setCategories(res.result || []));
     api.get("/users/my-info").then(res => setProfile(res.result));
-  }, [api]);
+  }, []);
 
   const fetchDashData = async () => {
     try {

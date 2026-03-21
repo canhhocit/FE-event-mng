@@ -18,7 +18,7 @@ export default function CategoriesPage({ api }) {
       setCats(res.result ?? []);
       setLoading(false);
     });
-  }, [refetch, api]);
+  }, [refetch]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,14 +32,14 @@ export default function CategoriesPage({ api }) {
         : await api.post("/categories", body);
 
       if (res.code === 1000) {
-        setMsg({ text: `✅ ${isEditing ? "Cập nhật" : "Tạo mới"} danh mục thành công!`, type: "success" });
+        setMsg({ text: `${isEditing ? "Cập nhật" : "Tạo mới"} danh mục thành công!`, type: "success" });
         setForm(EMPTY);
         setRefetch((n) => n + 1);
       } else {
-        setMsg({ text: `❌ ${res.message}`, type: "danger" });
+        setMsg({ text: `${res.message}`, type: "danger" });
       }
     } catch (err) {
-      setMsg({ text: "❌ Lỗi kết nối hệ thống", type: "danger" });
+      setMsg({ text: "Lỗi kết nối hệ thống", type: "danger" });
     } finally {
       setSaving(false);
     }
@@ -50,13 +50,13 @@ export default function CategoriesPage({ api }) {
     try {
       const res = await api.del(`/categories/${cat.id}`);
       if (res.code === 1000 || res.status === 200) {
-        setMsg({ text: "✅ Đã xóa danh mục thành công.", type: "success" });
+        setMsg({ text: "Đã xóa danh mục thành công.", type: "success" });
         setRefetch((n) => n + 1);
       } else {
-        setMsg({ text: `❌ Không thể xóa: ${res.message}`, type: "danger" });
+        setMsg({ text: `Không thể xóa: ${res.message}`, type: "danger" });
       }
     } catch (err) {
-      setMsg({ text: "❌ Lỗi khi thực hiện xóa", type: "danger" });
+      setMsg({ text: "Lỗi khi thực hiện xóa", type: "danger" });
     }
   };
 
@@ -67,7 +67,7 @@ export default function CategoriesPage({ api }) {
   return (
     <div className="animate-fade-in p-2">
       <div className="mb-4">
-        <h4 className="fw-bold mb-1">📁 Quản lý danh mục</h4>
+        <h4 className="fw-bold mb-1">Quản lý danh mục</h4>
         <p className="text-secondary small">Thiết lập các loại hình sự kiện để người dùng dễ dàng tìm kiếm.</p>
       </div>
 
@@ -77,7 +77,7 @@ export default function CategoriesPage({ api }) {
           <div className="card shadow-sm border-0" style={{ borderRadius: '16px' }}>
             <div className="card-body p-4">
               <h6 className="fw-bold mb-3 d-flex align-items-center">
-                <span className="me-2">{isEditing ? "📝 Hiệu chỉnh" : "➕ Thêm mới"}</span>
+                <span className="me-2">{isEditing ? "Chỉnh sửa" : "Thêm mới"}</span>
               </h6>
               
               {msg.text && (

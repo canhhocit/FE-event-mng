@@ -20,7 +20,7 @@ export default function ProfileModal({ api, onClose, onUpdateSuccess }) {
         }
       })
       .finally(() => setLoading(false));
-  }, [api]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,9 +31,8 @@ export default function ProfileModal({ api, onClose, onUpdateSuccess }) {
     e.preventDefault();
     setUpdating(true);
     try {
-      // Prepare request body (exclude username as it's the identifier)
       const { username, ...updateData } = profile;
-      
+
       const res = await api.put(`/users/${username}`, updateData);
       if (res.result) {
         alert("Cập nhật thông tin thành công!");
@@ -60,17 +59,44 @@ export default function ProfileModal({ api, onClose, onUpdateSuccess }) {
           <form onSubmit={handleSubmit}>
             <div className="modal-body p-4">
               <div className="mb-3">
-                <label className="form-label small fw-bold text-secondary">Username (không thể đổi)</label>
-                <input type="text" className="form-control bg-light border-0" value={profile.username} disabled />
+                <label className="form-label small fw-bold text-secondary">
+                  Username <span className="text-muted">(không thể đổi)</span>
+                </label>
+
+                <div className="input-group">
+                  <span className="input-group-text bg-secondary text-white">
+                    🔒
+                  </span>
+                  <input
+                    type="text"
+                    className="form-control bg-light text-muted"
+                    value={profile.username}
+                    disabled
+                  />
+                </div>
               </div>
               <div className="mb-3">
                 <label className="form-label small fw-bold text-muted">Họ và tên</label>
                 <input type="text" name="fullName" className="form-control bg-light border-0 shadow-none" value={profile.fullName} onChange={handleChange} required />
               </div>
-              <div className="mb-3">
-                <label className="form-label small fw-bold text-muted">Email</label>
-                <input type="email" name="email" className="form-control bg-light border-0 shadow-none" value={profile.email} onChange={handleChange} required />
-              </div>
+             <div className="mb-3">
+  <label className="form-label small fw-bold text-secondary">
+    Email <span className="text-muted">(không thể đổi)</span>
+  </label>
+
+  <div className="input-group">
+    <span className="input-group-text bg-secondary text-white">
+      📧
+    </span>
+    <input
+      type="email"
+      className="form-control bg-light text-muted"
+      value={profile.email}
+      disabled
+    />
+  </div>
+</div>
+              
               <div className="row g-3 mb-3">
                 <div className="col-md-6">
                   <label className="form-label small fw-bold text-muted">Số điện thoại</label>
