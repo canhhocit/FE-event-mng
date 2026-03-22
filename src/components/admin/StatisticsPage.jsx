@@ -19,30 +19,28 @@ export default function StatisticsPage({ api }) {
         const now = new Date();
         const monthLabels = [];
         const monthKeys = []; // Định dạng YYYY-MM
-        const monthlyRevenue = [];
+        const monthlyProfit = []; // Lợi nhuận Admin (10%)
         
-        for (let i = -3; i <= 2; i++) {
+        for (let i = -5; i <= 0; i++) {
           const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
           const m = String(d.getMonth() + 1).padStart(2, '0');
           const y = d.getFullYear();
           monthLabels.push(`Th.${d.getMonth() + 1}/${y.toString().slice(-2)}`);
           monthKeys.push(`${y}-${m}`);
-          monthlyRevenue.push(0);
+          monthlyProfit.push(0);
         }
 
         // Fetch data
-        const [eventsRes, usersRes, statusRes] = await Promise.all([
+        const [eventsRes, statusRes] = await Promise.all([
           api.get("/events/admin/all?size=1000"),
-          api.get("/users?page=1&size=1000"),
           api.get(`/statistics-event/by-status/1/${now.getFullYear()}`)
         ]);
 
         const events = eventsRes.result?.content || [];
-        const users = usersRes.result?.content || [];
         const statusDetails = statusRes.result?.eventStatusStatsDetail || [];
 
-        // xuly
-        let totalRevenue = 0;
+        // Process event stats
+        let totalCommission = 0;
         let totalSold = 0;
         
         const processedEvents = events.map(ev => {
@@ -57,10 +55,11 @@ export default function StatisticsPage({ api }) {
             totalQty += (Number(tt.totalQuantity) || 0);
           });
 
-          totalRevenue += eventRev;
+          const commission = eventRev * 0.25;
+          totalCommission += commission;
           totalSold += eventSold;
 
-          
+          // Mapping ra biểu đồ
           const dateStr = ev.startTime || ev.createdAt;
           if (dateStr) {
             const d = new Date(dateStr);
@@ -68,7 +67,7 @@ export default function StatisticsPage({ api }) {
               const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
               const mIndex = monthKeys.indexOf(key);
               if (mIndex !== -1) {
-                monthlyRevenue[mIndex] += (eventRev / 1000000); //convert to million VND
+                monthlyProfit[mIndex] += (commission / 1000000); // Đưa vào triệu VNĐ
               }
             }
           }
@@ -76,25 +75,24 @@ export default function StatisticsPage({ api }) {
           return { ...ev, ticketsSold: eventSold, totalRevenue: eventRev, totalTickets: totalQty };
         });
 
-        // update StatCards
+        // Update StatCards
         setStatsData([
-          { title: "TỔNG DOANH THU", value: totalRevenue.toLocaleString() + "đ", icon: "💰", color: "#00b894" },
-          { title: "VÉ ĐÃ BÁN", value: totalSold.toLocaleString(), icon: "🎫", color: "#0984e3" },
-          { title: "NGƯỜI DÙNG", value: users.length.toString(), icon: "👤", color: "#6c5ce7" },
-          { title: "SỰ KIỆN", value: events.length.toString(), icon: "🎉", color: "#fdcb6e" },
+          { title: "LỢI NHUẬN NỀN TẢNG", value: totalCommission.toLocaleString() + "đ" },
+          { title: "VÉ ĐÃ BÁN", value: totalSold.toLocaleString() },
+          { title: "SỰ KIỆN", value: events.length.toString() },
         ]);
 
         setTopEvents([...processedEvents].sort((a, b) => b.ticketsSold - a.ticketsSold).slice(0, 5));
 
-        // bieu do
+        // Sales Chart
         if (salesChartRef.current) {
           salesChart = new Chart(salesChartRef.current, {
             type: 'line',
             data: {
               labels: monthLabels,
               datasets: [{
-                label: 'Doanh thu',
-                data: monthlyRevenue,
+                label: 'Lợi nhuận',
+                data: monthlyProfit,
                 borderColor: '#0984e3',
                 backgroundColor: 'rgba(9, 132, 227, 0.15)',
                 fill: true,
@@ -114,7 +112,7 @@ export default function StatisticsPage({ api }) {
                 legend: { display: false },
                 tooltip: {
                   callbacks: {
-                    label: (context) => `Doanh thu: ${context.parsed.y.toFixed(1)} Triệu VNĐ`
+                    label: (context) => `Lợi nhuận: ${context.parsed.y.toFixed(2)} Triệu VNĐ`
                   }
                 }
               },
@@ -136,12 +134,24 @@ export default function StatisticsPage({ api }) {
           });
         }
 
+        const translateStatus = (status) => {
+          const map = {
+            'PENDING': 'CHỜ DUYỆT',
+            'UPCOMING': 'SẮP MỞ BÁN',
+            'OPENING': 'ĐANG MỞ BÁN',
+            'CLOSED': 'SẮP DIỄN RA',
+            'COMPLETED': 'KẾT THÚC',
+            'CANCELLED': 'ĐÃ HỦY'
+          };
+          return map[status] || status;
+        };
+
         // bd tron
         if (categoryChartRef.current) {
           categoryChart = new Chart(categoryChartRef.current, {
             type: 'doughnut',
             data: {
-              labels: statusDetails.length > 0 ? statusDetails.map(d => d.status) : ['ĐANG CHẠY'],
+              labels: statusDetails.length > 0 ? statusDetails.map(d => translateStatus(d.status)) : ['HỆ THỐNG'],
               datasets: [{
                 data: statusDetails.length > 0 ? statusDetails.map(d => d.countEvents) : [events.length || 1],
                 backgroundColor: ['#00b894', '#6c5ce7', '#0984e3', '#fdcb6e', '#fab1a0'],
@@ -174,11 +184,23 @@ export default function StatisticsPage({ api }) {
     };
   }, []);
 
+  const translateStatus = (s) => {
+    const map = {
+      'PENDING': 'CHỜ DUYỆT',
+      'UPCOMING': 'SẮP MỞ BÁN',
+      'OPENING': 'ĐANG MỞ BÁN',
+      'CLOSED': 'SẮP DIỄN RA',
+      'COMPLETED': 'KẾT THÚC',
+      'CANCELLED': 'ĐÃ HỦY'
+    };
+    return map[s] || s;
+  };
+
   return (
     <div className="animate-fade-in px-2">
       <div className="mb-4">
         <h4 className="fw-bold mb-1">Phân tích doanh thu</h4>
-        <p className="text-secondary small">Theo dõi xu hướng bán vé qua các tháng (Bao gồm dự báo tương lai).</p>
+        <p className="text-secondary small">Theo dõi xu hướng bán vé qua các tháng</p>
       </div>
 
       <StatCards stats={statsData} loading={loading} />
@@ -188,8 +210,8 @@ export default function StatisticsPage({ api }) {
           <div className="card p-4 h-100 shadow-sm border-0" style={{ minHeight: '410px', borderRadius: '20px' }}>
             <div className="d-flex justify-content-between align-items-center mb-4">
               <div>
-                <h6 className="fw-bold mb-0">Biểu đồ tăng trưởng</h6>
-                <small className="text-muted small">Dữ liệu tính theo Triệu VNĐ</small>
+                <h6 className="fw-bold mb-0">Biểu đồ doanh thu</h6>
+                <small className="text-muted small">Đơn vị: Triệu VNĐ</small>
               </div>
               {/* <div className="d-flex gap-2">
                  <span className="badge bg-primary px-3 py-2 rounded-pill">DỮ LIỆU THỰC</span>
@@ -214,7 +236,7 @@ export default function StatisticsPage({ api }) {
         <div className="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
           <h6 className="fw-bold mb-0">Xếp hạng</h6>
           <button className="btn btn-sm btn-outline-primary border-0 fw-bold" onClick={() => window.location.reload()}>
-            LÀM MỚI ↻
+            LÀM MỚI
           </button>
         </div>
         <div className="table-responsive">
@@ -225,7 +247,8 @@ export default function StatisticsPage({ api }) {
                 <th className="border-0">SỰ KIỆN</th>
                 <th className="border-0">VÉ BÁN</th>
                 <th className="border-0 text-center">TỶ LỆ LẤY CHỖ</th>
-                <th className="border-0">DOANH THU</th>
+                <th className="border-0">TỔNG TIỀN VÉ</th>
+                <th className="border-0 text-primary">HOA HỒNG (25%)</th>
                 <th className="border-0 text-center">TRẠNG THÁI</th>
               </tr>
             </thead>
@@ -256,10 +279,11 @@ export default function StatisticsPage({ api }) {
                         <small className="fw-bold" style={{ fontSize: '10px' }}>{percentage}%</small>
                       </div>
                     </td>
-                    <td className="fw-bold border-0 text-success">{ev.totalRevenue?.toLocaleString()}đ</td>
+                    <td className="fw-bold border-0 text-dark">{ev.totalRevenue?.toLocaleString()}đ</td>
+                    <td className="fw-bold border-0 text-primary">{(ev.totalRevenue * 0.25)?.toLocaleString()}đ</td>
                     <td className="text-center border-0">
                       <span className={`badge ${ev.status === 'PUBLISHED' ? 'bg-success-subtle text-success' : 'bg-light text-muted'} px-3 rounded-pill`} style={{ fontSize: '10px' }}>
-                        {ev.status}
+                        {translateStatus(ev.status)}
                       </span>
                     </td>
                   </tr>

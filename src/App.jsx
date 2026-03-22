@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrganizerPage from "./pages/OrganizerPage";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register/>} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/organizer" element={<OrganizerPage />} />
         </Routes>

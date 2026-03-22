@@ -1,15 +1,9 @@
 import React from 'react';
 
-const StatCard = ({ title, value, icon, color, trend, loading }) => (
+const StatCard = ({ title, value, color, trend, loading }) => (
   <div className="card border-0 shadow-sm transition-transform hover-scale h-100" style={{ borderRadius: '15px', overflow: 'hidden' }}>
     <div className="card-body p-4">
       <div className="d-flex align-items-center justify-content-between mb-3">
-        <div 
-          className="rounded-circle d-flex align-items-center justify-content-center" 
-          style={{ width: '48px', height: '48px', backgroundColor: `${color}15`, color: color }}
-        >
-          <span style={{ fontSize: '1.5rem' }}>{icon}</span>
-        </div>
         {trend !== undefined && !loading && (
           <div className={`small fw-bold ${trend >= 0 ? 'text-success' : 'text-danger'}`}>
             {trend >= 0 ? '↑' : '↓'} {Math.abs(trend)}%
@@ -26,10 +20,10 @@ const StatCard = ({ title, value, icon, color, trend, loading }) => (
 
 export default function StatCards({ stats, loading }) {
   const defaultStats = [
-    { title: "TỔNG DOANH THU", value: "0đ", icon: "💰", color: "#00b894" },
-    { title: "VÉ ĐÃ BÁN", value: "0", icon: "🎫", color: "#0984e3" },
-    { title: "NGƯỜI DÙNG", value: "0", icon: "👤", color: "#6c5ce7" },
-    { title: "SỰ KIỆN", value: "0", icon: "🎉", color: "#fdcb6e" },
+    { title: "TỔNG DOANH THU", value: "0đ"},
+    { title: "VÉ ĐÃ BÁN", value: "0"},
+    { title: "NGƯỜI DÙNG", value: "0"},
+    { title: "SỰ KIỆN", value: "0"},
   ];
 
   const data = stats || defaultStats;

@@ -59,6 +59,17 @@ export default function UsersPage({ api }) {
     }
   };
 
+  const handleUnlock = async (username) => {
+    if (!window.confirm(`Xác nhận mở khóa tài khoản "${username}"?`)) return;
+    setDisablingId(username);
+    try {
+      await api.patch(`/users/${username}/unlock`);
+      setRefetch(n => n + 1);
+    } finally {
+      setDisablingId(null);
+    }
+  };
+
   const filteredUsers = users.filter(u => {
     const matchesSearch = u.username.toLowerCase().includes(search.toLowerCase()) || 
                           (u.fullName ?? "").toLowerCase().includes(search.toLowerCase());
@@ -68,20 +79,21 @@ export default function UsersPage({ api }) {
 
   return (
     <div className="animate-fade-in">
-      <div className="mb-4">
-        <h4 className="fw-bold mb-1">Quản lý người dùng</h4>
-        <p className="text-secondary small">Quản lý trạng thái tài khoản người dùng.Đang pt</p>
+      <div className="mb-4 d-flex justify-content-between align-items-end">
+        <div>
+          <h4 className="fw-bold mb-1">Quản lý người dùng</h4>
+          <p className="text-secondary small mb-0">Quản lý và cấp quyền truy cập hệ thống.</p>
+        </div>
       </div>
 
       {/* Stats Row */}
-      <div className="row g-2 mb-4">
+      <div className="row g-3 mb-4">
         <div className="col-md-6">
-          <UserStat label="Tổng người dùng" value={users.length} color="#6c5ce7" icon="👥" />
+          <UserStat label="Tổng người dùng" value={users.length} color="#6c5ce7" icon="" />
         </div>
         <div className="col-md-6">
-          <UserStat label="Ban tổ chức (Organizer)" value={users.filter(u => u.role === 'ORGANIZER').length} color="#00b894" icon="🏢" />
+          <UserStat label="Ban tổ chức (Organizer)" value={users.filter(u => u.role === 'ORGANIZER').length} color="#00b894" icon="" />
         </div>
-        
       </div>
 
       <div className="card border-0 shadow-sm" style={{ borderRadius: '16px', overflow: 'hidden' }}>
@@ -151,6 +163,7 @@ export default function UsersPage({ api }) {
                   <td className="border-0">
                     <div className="small fw-medium text-dark">{u.email}</div>
                     <div className="text-muted small">{u.phone || "—"}</div>
+                    {!u.enabled && <span className="badge bg-danger-subtle text-danger mt-1">Đã khóa</span>}
                   </td>
                   <td className="border-0 text-center">
                     <RoleBadge role={u.role} />
@@ -160,14 +173,23 @@ export default function UsersPage({ api }) {
                   </td>
                   <td className="border-0 text-end px-4">
                     <div className="d-flex justify-content-end gap-2">
-                       {/* <button className="btn btn-sm btn-light rounded-pill px-3" title="Xem chi tiết">👁️</button> */}
-                       <button
-                        className="btn btn-sm btn-outline-danger rounded-pill px-3"
-                        disabled={disablingId === u.username || u.role === "ADMIN"}
-                        onClick={() => handleDisable(u.username)}
-                      >
-                        {disablingId === u.username ? "..." : "Khóa"}
-                      </button>
+                       {u.enabled ? (
+                         <button
+                           className="btn btn-sm btn-outline-danger px-3 rounded-1"
+                           disabled={disablingId === u.username || u.role === "ADMIN"}
+                           onClick={() => handleDisable(u.username)}
+                         >
+                           {disablingId === u.username ? "..." : "Khóa"}
+                         </button>
+                       ) : (
+                         <button
+                           className="btn btn-sm btn-outline-success px-3 rounded-1"
+                           disabled={disablingId === u.username}
+                           onClick={() => handleUnlock(u.username)}
+                         >
+                           {disablingId === u.username ? "..." : "Mở khóa"}
+                         </button>
+                       )}
                     </div>
                   </td>
                 </tr>

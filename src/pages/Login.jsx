@@ -142,6 +142,9 @@ export default function Login() {
         <div className="text-center mt-3">
           Chưa có tài khoản? <a href="/register">Đăng ký ngay</a>
         </div>
+        <div className="text-center mt-2">
+          <a href="/forgot-password" className="text-muted small text-decoration-none">Quên mật khẩu?</a>
+        </div>
       </div>
     </div>
   );

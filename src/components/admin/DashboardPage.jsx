@@ -35,10 +35,9 @@ export default function DashboardPage({ api }) {
         });
 
         setStats([
-          { title: "DOANH THU", value: totalRev.toLocaleString() + "đ", icon: "💰", color: "#00b894" },
-          { title: "VÉ ĐÃ BÁN", value: totalSold.toLocaleString(), icon: "🎫", color: "#0984e3" },
-          { title: "NGƯỜI DÙNG", value: usList.length.toString(), icon: "👥", color: "#6c5ce7" },
-          { title: "BTC/ORGANIZER", value: usList.filter(u => u.role === "ORGANIZER").length.toString(), icon: "🏢", color: "#fdcb6e" },
+          { title: "LỢI NHUẬN NỀN TẢNG", value: (totalRev * 0.25).toLocaleString() + "đ" },
+          { title: "VÉ ĐÃ BÁN", value: totalSold.toLocaleString() },
+          { title: "NGƯỜI DÙNG", value: usList.length.toString() },
         ]);
       } catch (err) {
         console.error("Dashboard data error:", err);

@@ -140,7 +140,6 @@ export default function CategoriesPage({ api }) {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
-                  <span className="position-absolute end-0 top-50 translate-middle-y me-3 text-muted small">🔍</span>
                 </div>
               </div>
             </div>
@@ -171,7 +170,7 @@ export default function CategoriesPage({ api }) {
                       </td>
                       <td className="border-0 text-end px-4">
                         <button
-                          className="btn btn-sm btn-light rounded-circle me-2 p-2"
+                          className="btn btn-sm btn-outline-primary rounded-1 me-2 px-3 fw-bold"
                           title="Sửa"
                           onClick={() => {
                             setForm({ id: c.id, name: c.name, description: c.description ?? "" });
@@ -179,14 +178,14 @@ export default function CategoriesPage({ api }) {
                             window.scrollTo({ top: 0, behavior: "smooth" });
                           }}
                         >
-                          ✏️
+                          Sửa
                         </button>
                         <button
-                          className="btn btn-sm btn-light rounded-circle p-2 text-danger"
+                          className="btn btn-sm btn-outline-danger rounded-1 px-3 fw-bold"
                           title="Xóa"
                           onClick={() => handleDelete(c)}
                         >
-                          🗑️
+                          Xóa
                         </button>
                       </td>
                     </tr>

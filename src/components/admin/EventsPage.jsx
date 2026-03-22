@@ -10,7 +10,6 @@ const QuickStat = ({ label, value, color, icon }) => (
         <p className="text-muted small mb-0 fw-medium text-uppercase" style={{ fontSize: '10px', letterSpacing: '0.5px' }}>{label}</p>
         <h5 className="fw-bold mb-0" style={{ color: '#2d3436' }}>{value}</h5>
       </div>
-      <span style={{ fontSize: '20px' }}>{icon}</span>
     </div>
   </div>
 );
@@ -349,18 +348,17 @@ export default function EventsPage({ api }) {
 
       {/* Quick Stats Row */}
       <div className="row g-3 mb-4">
-        <div className="col-md-3"><QuickStat label="Đang chờ duyệt" value={events.filter(e => e.status === 'PENDING').length} color="#fdcb6e" icon="⏳" /></div>
-        <div className="col-md-3"><QuickStat label="Đang mở bán" value={events.filter(e => e.status === 'OPENING').length} color="#00b894" icon="🎟" /></div>
-        <div className="col-md-3"><QuickStat label="Sắp diễn ra" value={events.filter(e => e.status === 'UPCOMING').length} color="#0984e3" icon="⏳" /></div>
-        <div className="col-md-3"><QuickStat label="Đã hoàn thành" value={events.filter(e => e.status === 'COMPLETED').length} color="#6c5ce7" icon="🏁" /></div>
+        <div className="col-md-3"><QuickStat label="Đang chờ duyệt" value={events.filter(e => e.status === 'PENDING').length} color="#fdcb6e" /></div>
+        <div className="col-md-3"><QuickStat label="Đang mở bán" value={events.filter(e => e.status === 'OPENING').length} color="#00b894" /></div>
+        <div className="col-md-3"><QuickStat label="Sắp diễn ra" value={events.filter(e => e.status === 'UPCOMING').length} color="#0984e3" /></div>
+        <div className="col-md-3"><QuickStat label="Đã hoàn thành" value={events.filter(e => e.status === 'COMPLETED').length} color="#6c5ce7" /></div>
       </div>
 
       <div className="card border-0 shadow-sm" style={{ borderRadius: '16px' }}>
         <div className="card-header bg-white p-4 border-0">
           <div className="row g-3 align-items-center">
             <div className="col-md-4">
-              <div className="input-group input-group-sm border rounded-pill px-2 py-1" style={{ backgroundColor: '#f8f9fa' }}>
-                <span className="input-group-text bg-transparent border-0 text-muted">🔍</span>
+              <div className="input-group input-group-sm border rounded-pill px-3 py-1" style={{ backgroundColor: '#f8f9fa' }}>
                 <input
                   type="text"
                   className="form-control bg-transparent border-0 shadow-none"

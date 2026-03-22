@@ -1,8 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { VND, StatusBadge } from "../../utils/helpers";
 import { getImageUrl } from "../../hooks/useApi";
+import Chart from 'chart.js/auto';
 
 export default function OrganizerDashboard({ stats, profile }) {
+  useEffect(() => {
+    if (!stats || !stats.monthlyRevenues) return;
+    
+    const ctx = document.getElementById('organizerRevenueChart');
+    if (!ctx) return;
+
+    // Destroy existing chart if any
+    const existingChart = Chart.getChart(ctx);
+    if (existingChart) {
+        existingChart.destroy();
+    }
+
+    const labels = stats.monthlyRevenues.map(m => `Th.${m.month}/${m.year}`);
+    const data = stats.monthlyRevenues.map(m => m.revenue); // Since it's net, it's just the revenue list sent by backend (we'll assume backend sends net)
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Doanh thu thực nhận (VNĐ)',
+          data: data,
+          borderColor: '#00b894',
+          backgroundColor: 'rgba(0, 184, 148, 0.1)',
+          fill: true,
+          tension: 0.4,
+          borderWidth: 3,
+          pointRadius: 4,
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#00b894'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                  return ' Thực nhận: ' + VND(context.raw);
+              }
+            }
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f1f2f6' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }, [stats]);
+
   if (!stats) return <div className="text-center py-5">Đang tải dữ liệu...</div>;
 
   return (
@@ -11,32 +65,50 @@ export default function OrganizerDashboard({ stats, profile }) {
       
       {/* Stats Cards */}
       <div className="row g-4 mb-5">
-        <div className="col-md-4">
+        <div className="col-md-3">
           <div className="card border-0 shadow-sm p-4 h-100 bg-primary text-white" style={{ borderRadius: '20px' }}>
-            <div className="d-flex justify-content-between align-items-center">
-                <small className="fw-bold text-uppercase opacity-75">Tổng doanh thu</small>
-                <span className="fs-3">💵</span>
+            <div className="d-flex justify-content-center">
+                <small className="fw-bold text-uppercase opacity-75">Thực nhận (Net)</small>
+                {/* <span className="fs-3">💵</span> */}
             </div>
-            <h2 className="fw-bold mt-2">{VND(stats.totalRevenue)}</h2>
+            <h2 className="fw-bold mt-2">{VND(stats.totalRevenue - stats.totalRevenue * 0.25)}</h2>
           </div>
         </div>
-        <div className="col-md-4">
+        <div className="col-md-3">
           <div className="card border-0 shadow-sm p-4 h-100 bg-success text-white" style={{ borderRadius: '20px' }}>
-            <div className="d-flex justify-content-between align-items-center">
+            {/* <div className="d-flex justify-content align-items-center"> */}
+            <div className="d-flex justify-content-center">
                 <small className="fw-bold text-uppercase opacity-75">Vé đã bán</small>
-                <span className="fs-3">🎫</span>
+                {/* <span className="fs-3">🎫</span> */}
             </div>
-            <h2 className="fw-bold mt-2">{stats.totalTicketsSold} <small className="fs-6 opacity-75">vé</small></h2>
+            <h2 className="fw-bold text-center mt-4">{stats.totalTicketsSold} <small className="fs-6 opacity-75">vé</small></h2>
           </div>
         </div>
-        <div className="col-md-4">
+        <div className="col-md-3">
           <div className="card border-0 shadow-sm p-4 h-100 bg-dark text-white" style={{ borderRadius: '20px' }}>
-            <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex justify-content-center">
                 <small className="fw-bold text-uppercase opacity-75">Sự kiện đã tạo</small>
-                <span className="fs-3">📅</span>
+                {/* <span className="fs-3">📅</span> */}
             </div>
-            <h2 className="fw-bold mt-2">{stats.totalEvents}</h2>
+            <h2 className="fw-bold text-center mt-4">{stats.totalEvents}</h2>
           </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card border-0 shadow-sm p-4 h-100 bg-warning text-dark" style={{ borderRadius: '20px' }}>
+            <div className="d-flex justify-content-center">
+                <small className="fw-bold text-uppercase opacity-50">Phí dịch vụ</small>
+                {/* <span className="fs-3">💎</span> */}
+            </div>
+            <h2 className="fw-bold text-center mt-2">{VND(stats.totalRevenue * 0.25)}</h2>
+          </div>
+        </div>
+      </div>
+
+      {/* Revenue Growth Chart */}
+      <div className="card border-0 shadow-sm p-4 mb-5" style={{ borderRadius: '20px' }}>
+        <h5 className="fw-bold mb-4">Biểu đồ tăng trưởng (Thực nhận)</h5>
+        <div style={{ height: '300px' }}>
+          <canvas id="organizerRevenueChart"></canvas>
         </div>
       </div>
 
@@ -57,15 +129,11 @@ export default function OrganizerDashboard({ stats, profile }) {
                 <th className="py-3 border-0">Trạng thái</th>
                 <th className="py-3 border-0">Vé đã bán / Tổng</th>
                 <th className="py-3 border-0">Tỉ lệ vé bán</th>
-                <th className="py-3 text-end px-4 border-0">Doanh thu dự kiến</th>
+                <th className="py-3 text-end px-4 border-0">Doanh thu từ vé</th>
               </tr>
             </thead>
             <tbody>
               {stats.eventStats.map(ev => {
-                // Since eventStats from API might not include imageUrls directly, 
-                // we might need to adjust or skip if not available.
-                // But usually, it should be part of the stat or we can fetch.
-                // For now, let's assume it's in the DTO or use a generic icon.
                 return (
                 <tr key={ev.eventId}>
                   <td className="ps-4">

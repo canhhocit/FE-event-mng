@@ -3,11 +3,11 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const MENU = [
-  { key: "dashboard",  label: "Tổng quan",   icon: "📊" },
-  { key: "events",     label: "Sự kiện",      icon: "📅" },
-  { key: "users",      label: "Người dùng",   icon: "👥" },
-  { key: "categories", label: "Danh mục",     icon: "📁" },
-  { key: "statis",     label: "Thống kê",     icon: "📈" },
+  { key: "dashboard",  label: "Tổng quan"},
+  { key: "events",     label: "Sự kiện"},
+  { key: "users",      label: "Người dùng"},
+  { key: "categories", label: "Danh mục"},
+  { key: "statis",     label: "Thống kê"},
 ];
 
 export default function Sidebar({ active, onSelect, onProfileClick }) {
@@ -29,7 +29,7 @@ export default function Sidebar({ active, onSelect, onProfileClick }) {
       <div className="d-flex align-items-center justify-content-between p-3 mb-2" style={{ minHeight: 64 }}>
         {open && (
           <div className="ps-2">
-            <div className="fw-bold" style={{ fontSize: 18, color: '#0984e3', letterSpacing: '-0.5px' }}>EVENt MANAGER</div>
+            <div className="fw-bold" style={{ fontSize: 18, color: '#0984e3', letterSpacing: '-0.5px' }}>EVENT MANAGER</div>
             <small className="text-secondary fw-medium" style={{ fontSize: 10, display: 'block', marginTop: '-4px' }}>ADMINISTRATION</small>
           </div>
         )}
