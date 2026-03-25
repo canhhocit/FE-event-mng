@@ -10,7 +10,7 @@ export default function Register() {
     fullName: "",
     phone: "",
     address: "",
-    role: "USER",
+    role: "ORGANIZER",
   });
 
   const [errors, setErrors] = useState({});
@@ -184,19 +184,6 @@ export default function Register() {
                 className="form-control"
               />
             </div>
-          </div>
-          <div className="text-center mb-3 mt-1 bg-body-secondary">
-            <input
-              type="checkbox"
-              checked={form.role === "ORGANIZER"}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  role: e.target.checked ? "ORGANIZER" : "USER",
-                }))
-              }
-            />{" "}
-            Tạo tài khoản với tư cách là Ban tổ chức
           </div>
 
           <button className="btn btn-primary w-100" disabled={loading}>
